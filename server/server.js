@@ -23,6 +23,7 @@ app.use(
 		origin: [
 			'http://localhost:3000',
 			'http://localhost:8081',
+			'https://visitor-management-system-eta.vercel.app',
 		],
 		credentials: true,
 	})
