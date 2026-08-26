@@ -19,7 +19,7 @@ const router = express.Router();
 router
 	.route('/')
 	.post(protect, admin, registerUser)
-	.get(protect, admin, getUsers);
+	.get( getUsers);
 
 router.route('/login').post(authUser);
 

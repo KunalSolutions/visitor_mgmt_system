@@ -5,29 +5,43 @@ import UserModel from '#models/user.model.js';
 const protect = async (req, res, next) => {
 	let token;
 
-	token = req.cookies.jwt;
+	if (
+		req.headers.authorization &&
+		req.headers.authorization.startsWith('Bearer ')
+	) {
+		token = req.headers.authorization.split(' ')[1];
+	}
 
-	if (token) {
-		try {
-			const decoded = jwt.verify(token, process.env.JWT_SECRET);
+	if (!token && req.cookies?.jwt) {
+		token = req.cookies.jwt;
+	}
 
-			req.user = await UserModel.findById(decoded.id).select('-password');
-
-			if (!req.user) {
-				res.status(401);
-				throw new Error('User not found.');
-			}
-
-			next();
-		} catch (error) {
-			console.error(error);
-
-			res.status(401);
-			throw new Error('Not authorized, token failed!');
-		}
-	} else {
+	if (!token) {
 		res.status(401);
 		throw new Error('Not authorized, no token');
+	}
+
+	try {
+		const decoded = jwt.verify(
+			token,
+			process.env.JWT_SECRET
+		);
+
+		req.user = await UserModel.findById(
+			decoded.userId
+		).select('-password');
+
+		if (!req.user) {
+			res.status(401);
+			throw new Error('User not found.');
+		}
+
+		next();
+	} catch (error) {
+		console.error(error);
+
+		res.status(401);
+		throw new Error('Not authorized, token failed!');
 	}
 };
 
@@ -36,7 +50,9 @@ const admin = (req, res, next) => {
 		next();
 	} else {
 		res.status(403);
-		throw new Error('Not authorized as an administrator.');
+		throw new Error(
+			'Not authorized as an administrator.'
+		);
 	}
 };
 
@@ -45,7 +61,9 @@ const security = (req, res, next) => {
 		next();
 	} else {
 		res.status(403);
-		throw new Error('Not authorized as security.');
+		throw new Error(
+			'Not authorized as security.'
+		);
 	}
 };
 
@@ -54,8 +72,15 @@ const resident = (req, res, next) => {
 		next();
 	} else {
 		res.status(403);
-		throw new Error('Not authorized as a resident.');
+		throw new Error(
+			'Not authorized as a resident.'
+		);
 	}
 };
 
-export { admin, protect, resident, security };
+export {
+	admin,
+	protect,
+	resident,
+	security,
+};

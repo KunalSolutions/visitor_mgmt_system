@@ -68,7 +68,7 @@ const getVisitorById = async (req, res) => {
  * @access	private
  */
 const updateVisitorStatus = async (req, res) => {
-	const { status } = req.body;
+	const { status, remark } = req.body;
 
 	const visitor = await VisitorModel.findById(req.params.id);
 

@@ -20,7 +20,7 @@ const authUser = async (req, res) => {
 		user.lastLogin = new Date();
 		await user.save();
 
-		generateToken(res, user._id);
+		const token = generateToken(res, user._id);
 
 		res.status(200).json({
 			_id: user._id,
@@ -32,6 +32,7 @@ const authUser = async (req, res) => {
 			floorNumber: user.floorNumber,
 			photo: user.photo,
 			status: user.status,
+			token,
 		});
 	} else {
 		res.status(401);
