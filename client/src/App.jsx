@@ -1,5 +1,9 @@
 import { Provider } from 'react-redux';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+	createBrowserRouter,
+	Navigate,
+	RouterProvider,
+} from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -16,16 +20,12 @@ import {
 	RegisterVisitorScreen,
 	NotificationScreen,
 	ProfileScreen,
-	
 	UserListScreen,
 	UserCreateScreen,
 	UserEditScreen,
-
 	AdminVisitorListScreen,
 	AdminVisitorDetailsScreen,
-
 	SecurityVisitorListScreen,
-
 	ResidentVisitorListScreen,
 } from '@screens';
 
@@ -33,10 +33,16 @@ import store from './store';
 
 const router = createBrowserRouter([
 	{
+		path: '/',
+		element: <Navigate to="/login" replace />,
+	},
+
+	{
 		path: '/login',
 		element: <LoginScreen />,
 		errorElement: <ErrorScreen />,
 	},
+
 	{
 		element: <PrivateRoute />,
 		errorElement: <ErrorScreen />,
@@ -49,71 +55,90 @@ const router = createBrowserRouter([
 						path: '/notifications',
 						element: <NotificationScreen />,
 					},
+
 					{
 						path: '/profile',
 						element: <ProfileScreen />,
 					},
+
 					{
-						element: <RoleRoute allowedRoles={['admin']} />,
+						element: (
+							<RoleRoute allowedRoles={['admin']} />
+						),
 						children: [
 							{
 								path: '/admin/dashboard',
 								element: <AdminDashboardScreen />,
 							},
+
 							{
 								path: '/admin/users',
 								element: <UserListScreen />,
 							},
+
 							{
 								path: '/admin/users/create',
 								element: <UserCreateScreen />,
 							},
+
 							{
 								path: '/admin/users/:id/edit',
 								element: <UserEditScreen />,
 							},
+
 							{
 								path: '/admin/visitors',
 								element: <AdminVisitorListScreen />,
 							},
+
 							{
 								path: '/admin/visitors/:id',
 								element: <AdminVisitorDetailsScreen />,
 							},
 						],
 					},
+
 					{
-						element: <RoleRoute allowedRoles={['security']} />,
+						element: (
+							<RoleRoute allowedRoles={['security']} />
+						),
 						children: [
 							{
 								path: '/security/dashboard',
 								element: <SecurityDashboardScreen />,
 							},
+
 							{
 								path: '/security/visitors',
 								element: <SecurityVisitorListScreen />,
 							},
+
 							{
 								path: '/security/visitors/create',
 								element: <RegisterVisitorScreen />,
 							},
 						],
 					},
+
 					{
-						element: <RoleRoute allowedRoles={['resident']} />,
+						element: (
+							<RoleRoute allowedRoles={['resident']} />
+						),
 						children: [
 							{
 								path: '/resident/dashboard',
 								element: <ResidentDashboardScreen />,
 							},
+
 							{
 								path: '/resident/visitors',
 								element: <ResidentVisitorListScreen />,
-							}, 
+							},
+
 							{
 								path: '/resident/notifications',
 								element: <NotificationScreen />,
-							}, 
+							},
 						],
 					},
 				],
@@ -126,8 +151,9 @@ const App = () => {
 	return (
 		<Provider store={store}>
 			<RouterProvider router={router} />
+
 			<ToastContainer
-				position='bottom-right'
+				position="bottom-right"
 				autoClose={5000}
 				hideProgressBar
 			/>
