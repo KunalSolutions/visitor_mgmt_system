@@ -23,6 +23,9 @@ export default defineConfig({
 			'@slices': '/src/slices',
 			'@utils': '/src/utils',
 			'@constants': '/src/constants',
+			'@notifications': '/src/notifications',
+			'@socket': '/src/socket',
+			'@services': '/src/services',
 		},
 	},
 });

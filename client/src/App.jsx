@@ -7,6 +7,7 @@ import {
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import WebPushSetup from '@components/notifications/WebPushSetup';
+import SocketSetup from '@components/socket/SocketSetup';
 
 import Layout from '@components/Layout';
 import PrivateRoute from '@components/PrivateRoute';
@@ -152,6 +153,8 @@ const App = () => {
 	return (
 		<Provider store={store}>
 			<WebPushSetup />
+
+			<SocketSetup />
 
 			<RouterProvider router={router} />
 

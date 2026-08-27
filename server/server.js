@@ -5,11 +5,14 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import http from 'http';
 
 import connectDB from '#config/db.js';
 import userRoutes from '#routes/user.route.js';
 import visitorRoutes from '#routes/visitor.route.js';
 import notificationRoutes from '#routes/notification.route.js';
+
+import { initializeSocket } from '#sockets/socket.js';
 
 const port = process.env.PORT || 5000;
 
@@ -35,28 +38,32 @@ app.use(morgan('dev'));
 
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/visitors', visitorRoutes);
-app.use('/api/v1/notifications', notificationRoutes);
+app.use(
+	'/api/v1/notifications',
+	notificationRoutes
+);
 
 app.get('/', (req, res) => {
 	res.status(200).json({
 		success: true,
-		message: 'Visitor Management System API is running...',
+		message:
+			'Visitor Management System API is running...',
 	});
 });
 
-console.log('VAPID_EMAIL:', process.env.VAPID_EMAIL);
-console.log(
-	'VAPID_PUBLIC_KEY:',
-	!!process.env.VAPID_PUBLIC_KEY
-);
-console.log(
-	'VAPID_PRIVATE_KEY:',
-	!!process.env.VAPID_PRIVATE_KEY
-);
+const httpServer = http.createServer(app);
 
-app.listen(port, () => {
+initializeSocket(httpServer);
+
+httpServer.listen(port, () => {
 	console.log(
-		`Server running in ${process.env.NODE_ENV} mode on port ${port}`.bold
-			.yellow
+		`Server running in ${
+			process.env.NODE_ENV
+		} mode on port ${port}`.bold.yellow
+	);
+
+	console.log(
+		`HTTP + Socket.IO server running on port ${port}`
+			.bold.cyan
 	);
 });

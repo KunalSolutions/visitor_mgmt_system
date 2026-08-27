@@ -2,6 +2,7 @@ import VisitorModel from '#models/visitor.model.js';
 import NotificationModel from '#models/notification.model.js';
 import sendWebPushNotification from '../utils/web-push.utils.js';
 import UserModel from '#models/user.model.js';
+import { getIO } from '#sockets/socket.js';
 
 /**
  * @desc		Create visitor
@@ -60,6 +61,32 @@ const createVisitor = async (req, res) => {
 		}
 	}
 
+	const io = getIO();
+
+	io.to(`resident:${meetWith}`).emit(
+		'visitor:created',
+		{
+			...visitor.toObject(),
+			meetWith: meetWith.toString(),
+		}
+	);
+
+	io.to('security').emit(
+		'visitor:created',
+		{
+			...visitor.toObject(),
+			meetWith: meetWith.toString(),
+		}
+	);
+
+	io.to('admin').emit(
+		'visitor:created',
+		{
+			...visitor.toObject(),
+			meetWith: meetWith.toString(),
+		}
+	);
+
 	res.status(201).json(visitor);
 };
 
@@ -70,7 +97,10 @@ const createVisitor = async (req, res) => {
  */
 const getVisitors = async (req, res) => {
 	const visitors = await VisitorModel.find({})
-		.populate('meetWith', 'name email mobile flatNumber floorNumber')
+		.populate(
+			'meetWith',
+			'name email mobile flatNumber floorNumber'
+		)
 		.sort({ createdAt: -1 });
 
 	res.status(200).json(visitors);
@@ -82,7 +112,9 @@ const getVisitors = async (req, res) => {
  * @access	private
  */
 const getVisitorById = async (req, res) => {
-	const visitor = await VisitorModel.findById(req.params.id).populate(
+	const visitor = await VisitorModel.findById(
+		req.params.id
+	).populate(
 		'meetWith',
 		'name email mobile flatNumber floorNumber'
 	);
@@ -103,7 +135,9 @@ const getVisitorById = async (req, res) => {
 const updateVisitorStatus = async (req, res) => {
 	const { status, remark } = req.body;
 
-	const visitor = await VisitorModel.findById(req.params.id);
+	const visitor = await VisitorModel.findById(
+		req.params.id
+	);
 
 	if (!visitor) {
 		res.status(404);
@@ -115,15 +149,52 @@ const updateVisitorStatus = async (req, res) => {
 		throw new Error('Invalid visitor status');
 	}
 
-	if (visitor.meetWith.toString() !== req.user._id.toString()) {
+	if (
+		visitor.meetWith.toString() !==
+		req.user._id.toString()
+	) {
 		res.status(403);
-		throw new Error('You are not authorized to update this visitor');
+		throw new Error(
+			'You are not authorized to update this visitor'
+		);
 	}
 
 	visitor.status = status;
 	visitor.remark = remark?.trim() || '';
 
 	const updatedVisitor = await visitor.save();
+
+	const io = getIO();
+
+	io.to(`resident:${visitor.meetWith}`).emit(
+		'visitor:statusUpdated',
+		{
+			_id: updatedVisitor._id,
+			meetWith: visitor.meetWith.toString(),
+			status: updatedVisitor.status,
+			remark: updatedVisitor.remark,
+		}
+	);
+
+	io.to('security').emit(
+		'visitor:statusUpdated',
+		{
+			_id: updatedVisitor._id,
+			meetWith: visitor.meetWith.toString(),
+			status: updatedVisitor.status,
+			remark: updatedVisitor.remark,
+		}
+	);
+
+	io.to('admin').emit(
+		'visitor:statusUpdated',
+		{
+			_id: updatedVisitor._id,
+			meetWith: visitor.meetWith.toString(),
+			status: updatedVisitor.status,
+			remark: updatedVisitor.remark,
+		}
+	);
 
 	res.status(200).json(updatedVisitor);
 };
@@ -134,10 +205,14 @@ const updateVisitorStatus = async (req, res) => {
  * @access	private/admin
  */
 const deleteVisitor = async (req, res) => {
-	const visitor = await VisitorModel.findById(req.params.id);
+	const visitor = await VisitorModel.findById(
+		req.params.id
+	);
 
 	if (visitor) {
-		await VisitorModel.deleteOne({ _id: req.params.id });
+		await VisitorModel.deleteOne({
+			_id: req.params.id,
+		});
 
 		res.status(200).json({
 			message: 'Visitor deleted successfully',
