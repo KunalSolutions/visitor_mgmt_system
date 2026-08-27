@@ -1,5 +1,6 @@
 import VisitorModel from '#models/visitor.model.js';
 import NotificationModel from '#models/notification.model.js';
+import sendWebPushNotification from '../utils/web-push.utils.js';
 
 /**
  * @desc		Create visitor
@@ -7,7 +8,20 @@ import NotificationModel from '#models/notification.model.js';
  * @access	private/security
  */
 const createVisitor = async (req, res) => {
-	const { visitorName, mobile, photo, meetWith, purpose } = req.body;
+	const {
+		visitorName,
+		mobile,
+		photo,
+		meetWith,
+		purpose,
+	} = req.body;
+
+	const resident = await UserModel.findById(meetWith);
+
+	if (!resident || resident.role !== 'resident') {
+		res.status(404);
+		throw new Error('Resident not found');
+	}
 
 	const visitor = await VisitorModel.create({
 		visitorName,
@@ -26,6 +40,17 @@ const createVisitor = async (req, res) => {
 		message: `${visitorName} is waiting to meet you.`,
 		type: 'Visitor',
 	});
+
+	if (resident.webPushSubscription) {
+		await sendWebPushNotification(
+			resident.webPushSubscription,
+			{
+				title: 'New Visitor Request',
+				body: `${visitorName} is waiting to meet you.`,
+				url: '/resident/dashboard',
+			}
+		);
+	}
 
 	res.status(201).json(visitor);
 };

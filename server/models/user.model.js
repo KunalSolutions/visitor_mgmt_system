@@ -53,6 +53,17 @@ const userSchema = mongoose.Schema(
 			default: '',
 		},
 
+		expoPushToken: {
+			type: String,
+			default: '',
+			trim: true,
+		},
+
+		webPushSubscription: {
+			type: Object,
+			default: null,
+		},
+
 		status: {
 			type: String,
 			enum: ['Active', 'Inactive'],

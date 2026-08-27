@@ -74,6 +74,16 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 			}),
 			invalidatesTags: ['User'],
 		}),
+
+		updateWebPushSubscription: builder.mutation({
+			query: (webPushSubscription) => ({
+				url: `${USERS_URL}/push-subscription`,
+				method: 'PUT',
+				body: {
+					webPushSubscription,
+				},
+			}),
+		}),
 	}),
 });
 
@@ -87,4 +97,5 @@ export const {
 	useDeleteUserMutation,
 	useGetUserDetailsQuery,
 	useUpdateUserMutation,
+	useUpdateWebPushSubscriptionMutation,
 } = usersApiSlice;

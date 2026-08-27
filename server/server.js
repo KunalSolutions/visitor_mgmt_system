@@ -1,16 +1,15 @@
-import colors from "colors";
-import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
-import express from "express";
-import morgan from "morgan";
+import 'dotenv/config';
+
+import colors from 'colors';
+import cookieParser from 'cookie-parser';
+import express from 'express';
+import morgan from 'morgan';
 import cors from 'cors';
 
 import connectDB from '#config/db.js';
 import userRoutes from '#routes/user.route.js';
 import visitorRoutes from '#routes/visitor.route.js';
 import notificationRoutes from '#routes/notification.route.js';
-
-dotenv.config();
 
 const port = process.env.PORT || 5000;
 
@@ -32,21 +31,32 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(morgan("dev"));
+app.use(morgan('dev'));
 
-app.use("/api/v1/users", userRoutes);
+app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/visitors', visitorRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Visitor Management System API is running...",
-  });
+app.get('/', (req, res) => {
+	res.status(200).json({
+		success: true,
+		message: 'Visitor Management System API is running...',
+	});
 });
 
+console.log('VAPID_EMAIL:', process.env.VAPID_EMAIL);
+console.log(
+	'VAPID_PUBLIC_KEY:',
+	!!process.env.VAPID_PUBLIC_KEY
+);
+console.log(
+	'VAPID_PRIVATE_KEY:',
+	!!process.env.VAPID_PRIVATE_KEY
+);
+
 app.listen(port, () => {
-  console.log(
-    `Server running in ${process.env.NODE_ENV} mode on port ${port}`.bold.yellow
-  );
+	console.log(
+		`Server running in ${process.env.NODE_ENV} mode on port ${port}`.bold
+			.yellow
+	);
 });

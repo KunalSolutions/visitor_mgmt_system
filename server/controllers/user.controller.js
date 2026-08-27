@@ -255,6 +255,59 @@ const updateUser = async (req, res) => {
 	}
 };
 
+/**
+ * @desc		Send notification
+ * @route		PUT /api/v1/users/push-token
+ * @access	private/admin
+ */
+const updatePushToken = async (req, res) => {
+	const { expoPushToken } = req.body;
+
+	if (!expoPushToken) {
+		res.status(400);
+		throw new Error('Expo push token is required');
+	}
+
+	const user = await UserModel.findById(req.user._id);
+
+	if (!user) {
+		res.status(404);
+		throw new Error('User not found');
+	}
+
+	user.expoPushToken = expoPushToken;
+
+	await user.save();
+
+	res.status(200).json({
+		message: 'Push token updated successfully',
+	});
+};
+
+const updateWebPushSubscription = async (req, res) => {
+	const { webPushSubscription } = req.body;
+
+	if (!webPushSubscription) {
+		res.status(400);
+		throw new Error('Web push subscription is required');
+	}
+
+	const user = await UserModel.findById(req.user._id);
+
+	if (!user) {
+		res.status(404);
+		throw new Error('User not found');
+	}
+
+	user.webPushSubscription = webPushSubscription;
+
+	await user.save();
+
+	res.status(200).json({
+		message: 'Web push subscription updated successfully',
+	});
+};
+
 export {
 	authUser,
 	deleteUser,
@@ -265,4 +318,6 @@ export {
 	registerUser,
 	updateUser,
 	updateUserProfile,
+	updatePushToken,
+	updateWebPushSubscription,
 };

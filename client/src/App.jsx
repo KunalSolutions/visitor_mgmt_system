@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import WebPushSetup from '@components/notifications/WebPushSetup';
 
 import Layout from '@components/Layout';
 import PrivateRoute from '@components/PrivateRoute';
@@ -150,6 +151,8 @@ const router = createBrowserRouter([
 const App = () => {
 	return (
 		<Provider store={store}>
+			<WebPushSetup />
+
 			<RouterProvider router={router} />
 
 			<ToastContainer
