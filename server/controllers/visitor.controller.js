@@ -1,6 +1,7 @@
 import VisitorModel from '#models/visitor.model.js';
 import NotificationModel from '#models/notification.model.js';
 import sendWebPushNotification from '../utils/web-push.utils.js';
+import UserModel from '#models/user.model.js';
 
 /**
  * @desc		Create visitor
@@ -42,14 +43,21 @@ const createVisitor = async (req, res) => {
 	});
 
 	if (resident.webPushSubscription) {
-		await sendWebPushNotification(
-			resident.webPushSubscription,
-			{
-				title: 'New Visitor Request',
-				body: `${visitorName} is waiting to meet you.`,
-				url: '/resident/dashboard',
-			}
-		);
+		try {
+			await sendWebPushNotification(
+				resident.webPushSubscription,
+				{
+					title: 'New Visitor Request',
+					body: `${visitorName} is waiting to meet you.`,
+					url: '/resident/dashboard',
+				}
+			);
+		} catch (error) {
+			console.error(
+				'Web push failed:',
+				error
+			);
+		}
 	}
 
 	res.status(201).json(visitor);
